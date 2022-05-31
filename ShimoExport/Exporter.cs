@@ -3,14 +3,13 @@
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
+	using System.Linq;
 	using System.Net;
 	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 
 	using FSLib.Extension;
 	using FSLib.Network.Http;
-
-	using Newtonsoft.Json;
 
 	internal class Exporter
 	{
@@ -21,19 +20,26 @@
 		/// <summary>
 		/// 导出根目录
 		/// </summary>
-		public static readonly string Root;
-
-		static Exporter()
-		{
-			Root = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "已导出的文件");
-		}
+		public string Root { get; private set; }
 
 		/// <summary>
 		/// Cookies
 		/// </summary>
 		public string Cookies { get; }
 
+		public int Succeed { get; private set; }
+
+		public int Failed { get; private set; }
+
+		public int Skipped { get; private set; }
+
+		public int? SleepTime { get; private set; }
+
+		public bool IncludeShare { get; set; }
+
 		public event EventHandler<GeneralEventArgs<string>> Message;
+
+		public List<string> FailedList { get; private set; }
 
 		void LogN(string txt, bool ts = true) => Log(txt, ts);
 
@@ -43,6 +49,7 @@
 				OnMessage($"[{DateTime.Now:HH:mm:ss}] {txt}");
 			else OnMessage(txt);
 		}
+
 
 		void InitHttpClient()
 		{
@@ -54,24 +61,74 @@
 			_client.ImportCookies(Cookies, new Uri("https://shimo.im/"));
 		}
 
-		private List<File> rootData;
-
 		/// <summary>
 		/// 执行导出
 		/// </summary>
 		/// <returns></returns>
 		public async Task ExportAsync()
 		{
+			Succeed = 0;
+			Failed = 0;
+			Skipped = 0;
+			SleepTime = null;
+			FailedList = new List<string>();
+
 			InitHttpClient();
 
-			LogN("开始导出...");
+			LogN("验证身份...");
+			var name = await CheckUserAsync();
+			if (name.IsNullOrEmpty())
+				return;
+
+			LogN($"正在为 {name} 导出...");
+			Root = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), name);
+			Directory.CreateDirectory(Root);
+
+			LogN("开始导出空间...");
+			var spaces = await ListSpacesAsync();
+			foreach (var space in spaces)
+			{
+				await SyncContentAsync(space.Name, space);
+			}
+
+			LogN("开始导出桌面...");
 			await SyncContentAsync("", null);
-			//记录数据
-			System.IO.File.WriteAllText(Path.Combine(Root, "shimo.json"), JsonConvert.SerializeObject(rootData));
+
+			if (FailedList.Count > 0)
+			{
+				System.IO.File.WriteAllLines(Path.Combine(Root, "!!!!未能下载的文档.txt"), FailedList);
+			}
 
 			LogN("导出操作已经全部完成");
-
 		}
+
+		async Task<string> CheckUserAsync()
+		{
+			var ctx = _client.Create(HttpMethod.Get, "lizard-api/users/me", "desktop", result: new { name = "" });
+			await ctx.SendAsync();
+
+			if (ctx.IsValid())
+			{
+				return ctx.Result.name;
+			}
+
+			LogN(ctx.GetExceptionMessage("登录信息错误"));
+			return null;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public event EventHandler<GeneralEventArgs<string, string>> NotSupportTypeFound;
+
+		/// <summary>
+		/// 引发 <see cref="NotSupportTypeFound"/> 事件
+		/// </summary>
+		protected virtual void OnNotSupportTypeFound(string type, string name)
+		{
+			NotSupportTypeFound?.Invoke(this, new GeneralEventArgs<string, string>(type, name));
+		}
+
 
 		/// <summary>
 		/// 同步指定目录
@@ -81,41 +138,73 @@
 		/// <returns></returns>
 		private async Task SyncContentAsync(string currentPath, File parent)
 		{
-			var pid = parent?.Guid;
-			LogN($"正在加载 石墨文档\\{parent?.Name} ...");
+			var pid = parent?.IsShortcut == true ? parent.ShortcutSource.Guid : parent?.Guid;
+			LogN($"正在加载 石墨文档\\{parent?.Name} (GUID={pid}) ...");
 
 			try
 			{
 				var items = await LoadFilesAsync(pid);
-				if (parent == null)
-					rootData = items;
-				else parent.SubItems = items;
 
 				for (var i = 0; i < items.Count; i++)
 				{
 					var item = items[i];
 					var subPath = Path.Combine(currentPath, item.Name);
+					var itemType = item.Type;
+					var itemSubType = item.SubType;
+					var guid = item.Guid;
 
 					try
 					{
-						if (item.IsShortcut)
-							continue; //跳过快捷方式
-						if (item.Type == "folder")
+						if (item.IsShortcut && IncludeShare)
+						{
+							(itemType, itemSubType) = item.ShortcutSource.GetOriginalType();
+							guid = item.ShortcutSource.Guid;
+						}
+						if (itemType == "folder" || itemType == "space")
 						{
 							await SyncContentAsync(subPath, item);
 						}
 						else
 						{
-							var type = item.Type;
+							var ext = "";
 
-							if (type == "board" || type == "form")
+							if (itemType == "board" || itemType == "form")
 							{
-								LogN($"警告：【{subPath}】类型为 {(type == "board" ? "白板" : type == "form" ? "表单" : "")}，不支持导出！");
+								Failed++;
+								FailedList.Add($"{parent?.Name} (GUID={pid})");
+								OnNotSupportTypeFound(itemType, itemType == "board" ? "白板" : "表单");
 								continue;
 							}
 
-							var ext = type.Contains("doc") ? "docx" : type.Contains("sheet") ? "xlsx" : type == "mindmap" ? "xmind" : throw new Exception("未知的文档类型，请联系木鱼: " + type);
-							var targetPath = subPath + "." + ext;
+							if (itemType == "presentation" || itemType == "slide")
+							{
+								ext = "pptx";
+							}
+							else if (itemType == "mosheet" || itemType == "sheet" || itemType == "table" || itemType == "spreadsheet")
+							{
+								ext = "xlsx";
+							}
+							else if (itemType == "newdoc" || itemType == "modoc")
+							{
+								ext = "docx";
+							}
+							else if (itemType == "mindmap")
+							{
+								ext = "xmind";
+							}
+							else if (!item.SubType.IsNullOrEmpty())
+							{
+								ext = item.SubType;
+							}
+							else
+							{
+								Failed++;
+								FailedList.Add($"{parent?.Name} (GUID={pid})");
+								OnNotSupportTypeFound(itemType, itemSubType.DefaultForEmpty("未知"));
+								continue;
+							}
+
+							var targetPath = subPath.EndsWith(ext, StringComparison.OrdinalIgnoreCase) ? subPath : subPath + "." + ext;
 							var phyTargetPath = Path.Combine(Root, targetPath);
 
 							if (System.IO.File.Exists(phyTargetPath))
@@ -128,6 +217,7 @@
 								}
 								else
 								{
+									Skipped++;
 									LogN($"文件 {targetPath} 已存在且为最新，将跳过");
 									continue;
 								}
@@ -135,51 +225,83 @@
 
 							try
 							{
-
 								LogN($"正在导出 {targetPath}...");
-								var data = await ExportAsync(item.Guid, item.Name, ext, false);
+								var data = await ExportAsync(guid, item.Name, itemType, itemSubType, ext);
 								Directory.CreateDirectory(Path.GetDirectoryName(phyTargetPath));
 								System.IO.File.WriteAllBytes(phyTargetPath, data);
 							}
 							catch (NeedRetryException ex)
 							{
-								LogN($"操作过于频繁，需要等待一段时间后重试({ex.Timeout}毫秒)");
-								await Task.Delay(ex.Timeout);
+								LogN($"石墨导出限制，需要等待一段时间后重试({ex.Timeout}毫秒)");
+
+								SleepTime = ex.Timeout;
+								while (SleepTime > 0)
+								{
+									await Task.Delay(100);
+									SleepTime -= 100;
+								}
+
+								SleepTime = null;
 								i--;
 								continue;
 							}
 
 							LogN("导出成功.");
+							Succeed++;
 						}
 					}
 					catch (Exception ex)
 					{
+						Failed++;
+						FailedList.Add($"{parent?.Name} (GUID={pid}) => {ex.Message}");
 						LogN($"导出文件 {item.Name} 失败：{ex.Message}");
 					}
 				}
 			}
 			catch (Exception ex)
 			{
+				Failed++;
+				FailedList.Add($"{parent?.Name} (GUID={pid}) => {ex.Message}");
 				LogN($"导出目录 {parent?.Name ?? "根目录"} 失败：{ex.Message}");
 			}
 		}
 
-		private async Task<byte[]> ExportAsync(string fileid, string name, string type, bool isAsync)
+		async Task<List<File>> ListSpacesAsync()
+		{
+			var result = new List<File>();
+			var urls = new[] { "panda-api/file/spaces?orderBy=updatedAt", "panda-api/file/pinned_spaces" };
+
+			foreach (var url in urls)
+			{
+
+				var ctx = _client.Create(HttpMethod.Get, url, "space", result: new { spaces = new List<Space>() });
+				await ctx.SendAsync();
+
+				if (!ctx.IsValid())
+					throw new Exception("无法加载空间列表，响应内容为：" + ctx.ResponseContent?.RawStringResult);
+
+				result.AddRange(ctx.Result.spaces.Select(s => new File
+				{
+					Name = s.Name,
+					Guid = s.Guid,
+					UpdatedAt = DateTimeEx.FromJsTicks(s.UpdatedAt)
+				}));
+			}
+
+			return result;
+		}
+
+		private async Task<byte[]> ExportAsync(string fileid, string name, string type, string subType, string ext)
 		{
 			var downloadUrl = "";
-			if (type == "xmind")
+
+			if (!subType.IsNullOrEmpty())
 			{
-				var mindCtx = _client.Create(HttpMethod.Get, $"/lizard-api/files/{fileid}?contentUrl=true", "desktop", result: new { contentUrl = "" });
-				mindCtx.Send();
-
-				if (!mindCtx.IsValid())
-					throw new Exception("无法加载脑图地址信息，响应内容为：" + mindCtx.ResponseContent?.RawStringResult);
-
-				downloadUrl = mindCtx.Result.contentUrl;
+				downloadUrl = $"/lizard-api/files/{fileid}/download";
 			}
 			else
 			{
-				var url = $"/lizard-api/files/{fileid}/export?type={type}&file={fileid}&returnJson=1&name={System.Web.HttpUtility.UrlEncode(name)}";
+				var url = $"/lizard-api/files/{fileid}/export?type={ext}&file={fileid}&returnJson=1&name={System.Web.HttpUtility.UrlEncode(name)}&isAsync=0&timezoneOffset=-8";
 
 				var ctx = _client.Create(HttpMethod.Get, url, $"docs/{fileid}", result: new { redirectUrl = "", data = new { taskId = "" }, status = 0, downloadUrl = "" });
 				await ctx.SendAsync();
@@ -194,8 +316,11 @@
 
 						throw new NeedRetryException(timeout);
 					}
+
 					throw new Exception("导出操作失败，响应内容为：" + ctx.ResponseContent?.RawStringResult);
 				}
+
+				var isAsync = !(ctx.Result.data?.taskId ?? "").IsNullOrEmpty();
 
 				if (!isAsync)
 					downloadUrl = ctx.Result.redirectUrl;
@@ -227,7 +352,7 @@
 				}
 			}
 
-			var downloadCtx = _client.Create<byte[]>(HttpMethod.Get, downloadUrl);
+			var downloadCtx = _client.Create<byte[]>(HttpMethod.Get, downloadUrl, $"file/{fileid}");
 			await downloadCtx.SendAsync();
 
 			if (!downloadCtx.IsValid())
@@ -258,7 +383,7 @@
 			}
 
 			var ctx = _client.Create<List<File>>(HttpMethod.Get, url, "desktop");
-			ctx.Send();
+			await ctx.SendAsync();
 
 			if (!ctx.IsValid())
 				throw new Exception("无法加载文件列表，响应内容为：" + ctx.ResponseContent?.RawStringResult);
