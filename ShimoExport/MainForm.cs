@@ -17,7 +17,7 @@ namespace ShimoExport
 			btnExport.Click += BtnExport_Click;
 			timerGetText.Start();
 
-			Text = "石墨文档批量导出工具 by 木鱼 v3.3 Build 20220531";
+			Text = "石墨文档批量导出工具 by 木鱼 v3.7 Build 20220601";
 		}
 
 		void Log(string txt)
@@ -39,7 +39,7 @@ namespace ShimoExport
 
 			_exporter = new Exporter(txtCookies.Text) { IncludeShare = chkIncludeShare.Checked };
 			_exporter.Message += (o, args) => Invoke(new Action(() => Log(args.Data)));
-			_exporter.NotSupportTypeFound += (o, args) => Invoke(new Action(() => OnNotSupportFound(args.Data1, args.Data2)));
+			//_exporter.NotSupportTypeFound += (o, args) => Invoke(new Action(() => OnNotSupportFound(args.Data1, args.Data2)));
 
 			UpdateProgressAsync();
 			await _exporter.ExportAsync();

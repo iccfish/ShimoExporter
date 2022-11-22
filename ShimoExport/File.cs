@@ -10,12 +10,17 @@
 		public string Type { get; set; }
 		public string SubType { get; set; }
 		public string Name { get; set; }
-		public List<File> SubItems { get; set; }
+		public List<File> SubItems { get; } = new List<File>();
 		public DateTime UpdatedAt { get; set; }
 		public bool IsShortcut { get; set; }
 
 		public ShortcutSource ShortcutSource { get; set; }
+
+		public long UserId { get; set; }
+
+		public User User { get; set; }
 	}
+
 
 	class Space
 	{
