@@ -17,7 +17,7 @@ namespace ShimoExport
 			btnExport.Click += BtnExport_Click;
 			timerGetText.Start();
 
-			Text = "石墨文档批量导出工具 by 木鱼 v3.7 Build 20220601";
+			Text = "石墨文档批量导出工具 by 木鱼 v3.8 Build 20221126";
 		}
 
 		void Log(string txt)
@@ -111,7 +111,7 @@ namespace ShimoExport
 
 		private void lnkHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Process.Start("https://oss.secon.cn/soft/shimo_exporter/usage.jpg");
+			Process.Start("https://gitea.fishlee.net/iFish/ShimoExporter/raw/branch/master/Assets/usage.jpg");
 		}
 
 		private HashSet<string> _notifiedTypes = new HashSet<string>();
@@ -123,6 +123,16 @@ namespace ShimoExport
 
 			_notifiedTypes.SafeAdd(type + subType);
 			MessageBox.Show(this, $"暂不支持导出{type}/{subType}类型的文件，如需要支持，请联系木鱼。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		private void lnkGithub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("https://github.com/iccfish/ShimoExporter");
+		}
+
+		private void lnkGitea_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("https://gitea.fishlee.net/iFish/ShimoExporter");
 		}
 	}
 }

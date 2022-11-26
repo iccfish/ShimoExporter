@@ -41,14 +41,18 @@
 			this.label3 = new System.Windows.Forms.Label();
 			this.lblSucc = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
-			this.lnkHelp = new System.Windows.Forms.LinkLabel();
 			this.btnExport = new System.Windows.Forms.Button();
 			this.txtLog = new System.Windows.Forms.TextBox();
 			this.txtCookies = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.timerGetText = new System.Windows.Forms.Timer(this.components);
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.lnkGitea = new System.Windows.Forms.LinkLabel();
+			this.lnkGithub = new System.Windows.Forms.LinkLabel();
+			this.lnkHelp = new System.Windows.Forms.LinkLabel();
 			this.panel1.SuspendLayout();
 			this.pWait.SuspendLayout();
+			this.panel2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// panel1
@@ -62,7 +66,6 @@
 			this.panel1.Controls.Add(this.label3);
 			this.panel1.Controls.Add(this.lblSucc);
 			this.panel1.Controls.Add(this.label2);
-			this.panel1.Controls.Add(this.lnkHelp);
 			this.panel1.Controls.Add(this.btnExport);
 			this.panel1.Controls.Add(this.txtLog);
 			this.panel1.Controls.Add(this.txtCookies);
@@ -72,7 +75,7 @@
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Margin = new System.Windows.Forms.Padding(4);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(1215, 874);
+			this.panel1.Size = new System.Drawing.Size(1215, 802);
 			this.panel1.TabIndex = 0;
 			// 
 			// chkIncludeShare
@@ -80,7 +83,7 @@
 			this.chkIncludeShare.AutoSize = true;
 			this.chkIncludeShare.Checked = true;
 			this.chkIncludeShare.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.chkIncludeShare.Location = new System.Drawing.Point(795, 336);
+			this.chkIncludeShare.Location = new System.Drawing.Point(18, 280);
 			this.chkIncludeShare.Name = "chkIncludeShare";
 			this.chkIncludeShare.Size = new System.Drawing.Size(293, 40);
 			this.chkIncludeShare.TabIndex = 9;
@@ -92,7 +95,7 @@
 			this.pWait.Controls.Add(this.lblWait);
 			this.pWait.Controls.Add(this.pgWait);
 			this.pWait.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pWait.Location = new System.Drawing.Point(0, 459);
+			this.pWait.Location = new System.Drawing.Point(0, 387);
 			this.pWait.Name = "pWait";
 			this.pWait.Size = new System.Drawing.Size(1215, 46);
 			this.pWait.TabIndex = 8;
@@ -118,7 +121,7 @@
 			// 
 			this.lblSkipped.AutoSize = true;
 			this.lblSkipped.ForeColor = System.Drawing.Color.DimGray;
-			this.lblSkipped.Location = new System.Drawing.Point(814, 406);
+			this.lblSkipped.Location = new System.Drawing.Point(618, 340);
 			this.lblSkipped.Name = "lblSkipped";
 			this.lblSkipped.Size = new System.Drawing.Size(39, 36);
 			this.lblSkipped.TabIndex = 7;
@@ -128,7 +131,7 @@
 			// 
 			this.label4.AutoSize = true;
 			this.label4.ForeColor = System.Drawing.Color.DimGray;
-			this.label4.Location = new System.Drawing.Point(691, 406);
+			this.label4.Location = new System.Drawing.Point(473, 340);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(127, 36);
 			this.label4.TabIndex = 7;
@@ -138,7 +141,7 @@
 			// 
 			this.lblFailed.AutoSize = true;
 			this.lblFailed.ForeColor = System.Drawing.Color.Crimson;
-			this.lblFailed.Location = new System.Drawing.Point(473, 406);
+			this.lblFailed.Location = new System.Drawing.Point(416, 340);
 			this.lblFailed.Name = "lblFailed";
 			this.lblFailed.Size = new System.Drawing.Size(39, 36);
 			this.lblFailed.TabIndex = 7;
@@ -148,7 +151,7 @@
 			// 
 			this.label3.AutoSize = true;
 			this.label3.ForeColor = System.Drawing.Color.Crimson;
-			this.label3.Location = new System.Drawing.Point(312, 406);
+			this.label3.Location = new System.Drawing.Point(243, 340);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(155, 36);
 			this.label3.TabIndex = 7;
@@ -158,7 +161,7 @@
 			// 
 			this.lblSucc.AutoSize = true;
 			this.lblSucc.ForeColor = System.Drawing.Color.SeaGreen;
-			this.lblSucc.Location = new System.Drawing.Point(163, 406);
+			this.lblSucc.Location = new System.Drawing.Point(186, 340);
 			this.lblSucc.Name = "lblSucc";
 			this.lblSucc.Size = new System.Drawing.Size(39, 36);
 			this.lblSucc.TabIndex = 7;
@@ -168,27 +171,16 @@
 			// 
 			this.label2.AutoSize = true;
 			this.label2.ForeColor = System.Drawing.Color.SeaGreen;
-			this.label2.Location = new System.Drawing.Point(12, 406);
+			this.label2.Location = new System.Drawing.Point(13, 340);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(155, 36);
 			this.label2.TabIndex = 7;
 			this.label2.Text = "导出成功：";
 			// 
-			// lnkHelp
-			// 
-			this.lnkHelp.AutoSize = true;
-			this.lnkHelp.Location = new System.Drawing.Point(3, 280);
-			this.lnkHelp.Name = "lnkHelp";
-			this.lnkHelp.Size = new System.Drawing.Size(127, 36);
-			this.lnkHelp.TabIndex = 6;
-			this.lnkHelp.TabStop = true;
-			this.lnkHelp.Text = "使用说明";
-			this.lnkHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelp_LinkClicked);
-			// 
 			// btnExport
 			// 
 			this.btnExport.Enabled = false;
-			this.btnExport.Location = new System.Drawing.Point(414, 280);
+			this.btnExport.Location = new System.Drawing.Point(820, 280);
 			this.btnExport.Margin = new System.Windows.Forms.Padding(4);
 			this.btnExport.Name = "btnExport";
 			this.btnExport.Size = new System.Drawing.Size(362, 96);
@@ -201,7 +193,7 @@
 			this.txtLog.BackColor = System.Drawing.Color.White;
 			this.txtLog.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.txtLog.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-			this.txtLog.Location = new System.Drawing.Point(0, 505);
+			this.txtLog.Location = new System.Drawing.Point(0, 433);
 			this.txtLog.Margin = new System.Windows.Forms.Padding(4);
 			this.txtLog.Multiline = true;
 			this.txtLog.Name = "txtLog";
@@ -231,8 +223,8 @@
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(1215, 118);
 			this.label1.TabIndex = 3;
-			this.label1.Text = "请使用Chrome浏览器访问石墨，并按照视频教程复制相关的Cookies信息到下框中。实在不会用且石墨文档数量很多想一键导出，或使用中遇到问题，请联系作者木鱼，企" +
-	"微见 💕";
+			this.label1.Text = "请使用Chrome浏览器访问石墨，并按照视频教程复制相关的Cookies信息到下框中。实在不会用且石墨文档数量很多想一键导出，或使用中遇到问题，请联系作者木鱼 💕" +
+    "";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// timerGetText
@@ -240,12 +232,70 @@
 			this.timerGetText.Interval = 500;
 			this.timerGetText.Tick += new System.EventHandler(this.TimerGetText_Tick);
 			// 
+			// panel2
+			// 
+			this.panel2.BackColor = System.Drawing.Color.White;
+			this.panel2.Controls.Add(this.lnkGitea);
+			this.panel2.Controls.Add(this.lnkGithub);
+			this.panel2.Controls.Add(this.lnkHelp);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel2.Location = new System.Drawing.Point(0, 802);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(1215, 75);
+			this.panel2.TabIndex = 1;
+			// 
+			// lnkGitea
+			// 
+			this.lnkGitea.AutoSize = true;
+			this.lnkGitea.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lnkGitea.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lnkGitea.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+			this.lnkGitea.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+			this.lnkGitea.Location = new System.Drawing.Point(1092, 22);
+			this.lnkGitea.Name = "lnkGitea";
+			this.lnkGitea.Size = new System.Drawing.Size(110, 31);
+			this.lnkGitea.TabIndex = 14;
+			this.lnkGitea.TabStop = true;
+			this.lnkGitea.Text = "鱼的仓库";
+			this.lnkGitea.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lnkGithub
+			// 
+			this.lnkGithub.AutoSize = true;
+			this.lnkGithub.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lnkGithub.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lnkGithub.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+			this.lnkGithub.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+			this.lnkGithub.Location = new System.Drawing.Point(981, 22);
+			this.lnkGithub.Name = "lnkGithub";
+			this.lnkGithub.Size = new System.Drawing.Size(105, 31);
+			this.lnkGithub.TabIndex = 13;
+			this.lnkGithub.TabStop = true;
+			this.lnkGithub.Text = "GITHUB";
+			this.lnkGithub.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lnkHelp
+			// 
+			this.lnkHelp.AutoSize = true;
+			this.lnkHelp.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+			this.lnkHelp.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lnkHelp.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+			this.lnkHelp.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+			this.lnkHelp.Location = new System.Drawing.Point(865, 22);
+			this.lnkHelp.Name = "lnkHelp";
+			this.lnkHelp.Size = new System.Drawing.Size(110, 31);
+			this.lnkHelp.TabIndex = 12;
+			this.lnkHelp.TabStop = true;
+			this.lnkHelp.Text = "使用说明";
+			this.lnkHelp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1215, 874);
+			this.ClientSize = new System.Drawing.Size(1215, 877);
 			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.panel2);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.MaximizeBox = false;
@@ -255,6 +305,8 @@
 			this.panel1.PerformLayout();
 			this.pWait.ResumeLayout(false);
 			this.pWait.PerformLayout();
+			this.panel2.ResumeLayout(false);
+			this.panel2.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -267,7 +319,6 @@
 		private System.Windows.Forms.TextBox txtCookies;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Timer timerGetText;
-		private System.Windows.Forms.LinkLabel lnkHelp;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label4;
@@ -278,6 +329,10 @@
 		private System.Windows.Forms.ProgressBar pgWait;
 		private System.Windows.Forms.Label lblWait;
 		private System.Windows.Forms.CheckBox chkIncludeShare;
+		private System.Windows.Forms.Panel panel2;
+		private System.Windows.Forms.LinkLabel lnkGitea;
+		private System.Windows.Forms.LinkLabel lnkGithub;
+		private System.Windows.Forms.LinkLabel lnkHelp;
 	}
 }
 
